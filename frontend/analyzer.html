@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="Analyze password strength, entropy, patterns and security risks with SecurePass."
+    >
+
+    <title>Password Analyzer | SecurePass</title>
+
+
+    <!-- Google Font -->
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <!-- Bootstrap -->
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+
+    <!-- Bootstrap Icons -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    >
+
+
+    <!-- Global CSS -->
+
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    >
+
+</head>
+
+
+<body class="d-flex flex-column min-vh-100">
+
+
+    <!-- =====================================================
+         Navbar
+         ===================================================== -->
+
+    <div id="navbarContainer"></div>
+
+
+    <!-- =====================================================
+         Main Content
+         ===================================================== -->
+
+    <main class="flex-grow-1">
+
+        <section class="page-section">
+
+            <div class="container">
+
+
+                <!-- =================================================
+                     Page Header
+                     ================================================= -->
+
+                <div class="text-center mb-5">
+
+                    <span class="badge text-bg-primary px-3 py-2 mb-3">
+
+                        <i class="bi bi-shield-check me-1"></i>
+
+                        Security Analysis
+
+                    </span>
+
+
+                    <h1 class="fw-bold mb-3">
+                        Password Strength Analyzer
+                    </h1>
+
+
+                    <p class="text-secondary mb-0">
+
+                        Analyze password strength, entropy,
+                        character diversity and common security risks.
+
+                    </p>
+
+                </div>
+
+
+                <!-- =================================================
+                     Analyzer Input
+                     ================================================= -->
+
+                <div class="row justify-content-center">
+
+                    <div class="col-lg-8">
+
+
+                        <div class="card shadow-sm">
+
+                            <div class="card-body p-4 p-md-5">
+
+
+                                <h5 class="fw-bold mb-3">
+
+                                    <i
+                                        class="bi bi-key me-2 text-primary"
+                                    ></i>
+
+                                    Enter Password
+
+                                </h5>
+
+
+                                <p class="text-secondary small">
+
+                                    Your password is analyzed locally
+                                    in the browser and is not stored
+                                    as plain text.
+
+                                </p>
+
+
+                                <!-- Password Input -->
+
+                                <div class="input-group input-group-lg mb-3">
+
+                                    <span class="input-group-text">
+
+                                        <i
+                                            class="bi bi-lock"
+                                        ></i>
+
+                                    </span>
+
+
+                                    <input
+                                        type="password"
+                                        class="form-control"
+                                        id="passwordInput"
+                                        placeholder="Enter a password to analyze"
+                                        autocomplete="off"
+                                        spellcheck="false"
+                                    >
+
+
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-secondary"
+                                        id="togglePassword"
+                                        aria-label="Show password"
+                                    >
+
+                                        <i
+                                            class="bi bi-eye"
+                                            id="passwordIcon"
+                                        ></i>
+
+                                    </button>
+
+                                </div>
+
+
+                                <!-- Analyze Button -->
+
+                                <button
+                                    type="button"
+                                    id="analyzeButton"
+                                    class="btn btn-primary btn-lg w-100"
+                                >
+
+                                    <i
+                                        class="bi bi-shield-check me-2"
+                                    ></i>
+
+                                    Analyze Password
+
+                                </button>
+
+
+                                <!-- Input Error -->
+
+                                <div
+                                    id="analyzerError"
+                                    class="alert alert-danger mt-3 d-none"
+                                    role="alert"
+                                ></div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     Analysis Result
+                     ================================================= -->
+
+                <div
+                    id="analysisResult"
+                    class="d-none mt-5"
+                >
+
+
+                    <!-- =================================================
+                         Score Overview
+                         ================================================= -->
+
+                    <div class="row g-4">
+
+
+                        <!-- Score -->
+
+                        <div class="col-lg-5">
+
+                            <div class="card shadow-sm h-100">
+
+                                <div class="card-body p-4 text-center">
+
+                                    <h5 class="fw-bold mb-4">
+                                        Security Score
+                                    </h5>
+
+
+                                    <!-- Score Circle -->
+
+                                    <div
+                                        class="mx-auto mb-4 d-flex flex-column align-items-center justify-content-center border border-5 rounded-circle"
+                                        style="width: 180px; height: 180px;"
+                                        id="scoreCircle"
+                                    >
+
+                                        <span
+                                            id="scoreValue"
+                                            class="display-4 fw-bold"
+                                        >
+                                            0
+                                        </span>
+
+                                        <small class="text-secondary">
+                                            out of 100
+                                        </small>
+
+                                    </div>
+
+
+                                    <h4
+                                        id="strengthLevel"
+                                        class="fw-bold"
+                                    >
+                                        -
+                                    </h4>
+
+
+                                    <p
+                                        id="strengthDescription"
+                                        class="text-secondary mb-0"
+                                    >
+                                        -
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Quick Statistics -->
+
+                        <div class="col-lg-7">
+
+                            <div class="card shadow-sm h-100">
+
+                                <div class="card-body p-4">
+
+                                    <h5 class="fw-bold mb-4">
+
+                                        <i
+                                            class="bi bi-bar-chart-line me-2 text-primary"
+                                        ></i>
+
+                                        Password Statistics
+
+                                    </h5>
+
+
+                                    <div class="row g-3">
+
+
+                                        <!-- Length -->
+
+                                        <div class="col-sm-6">
+
+                                            <div
+                                                class="border rounded p-3 h-100"
+                                            >
+
+                                                <small class="text-secondary">
+                                                    Length
+                                                </small>
+
+                                                <div
+                                                    id="passwordLength"
+                                                    class="fs-4 fw-bold mt-1"
+                                                >
+                                                    0
+                                                </div>
+
+                                                <small class="text-secondary">
+                                                    characters
+                                                </small>
+
+                                            </div>
+
+                                        </div>
+
+
+                                        <!-- Entropy -->
+
+                                        <div class="col-sm-6">
+
+                                            <div
+                                                class="border rounded p-3 h-100"
+                                            >
+
+                                                <small class="text-secondary">
+                                                    Estimated Entropy
+                                                </small>
+
+                                                <div
+                                                    id="entropyValue"
+                                                    class="fs-4 fw-bold mt-1"
+                                                >
+                                                    0
+                                                </div>
+
+                                                <small class="text-secondary">
+                                                    bits
+                                                </small>
+
+                                            </div>
+
+                                        </div>
+
+
+                                        <!-- Character Pool -->
+
+                                        <div class="col-sm-6">
+
+                                            <div
+                                                class="border rounded p-3 h-100"
+                                            >
+
+                                                <small class="text-secondary">
+                                                    Character Pool
+                                                </small>
+
+                                                <div
+                                                    id="characterPool"
+                                                    class="fs-4 fw-bold mt-1"
+                                                >
+                                                    0
+                                                </div>
+
+                                                <small class="text-secondary">
+                                                    possible characters
+                                                </small>
+
+                                            </div>
+
+                                        </div>
+
+
+                                        <!-- Risk -->
+
+                                        <div class="col-sm-6">
+
+                                            <div
+                                                class="border rounded p-3 h-100"
+                                            >
+
+                                                <small class="text-secondary">
+                                                    Security Risk
+                                                </small>
+
+                                                <div
+                                                    id="securityRisk"
+                                                    class="fs-5 fw-bold mt-2"
+                                                >
+                                                    -
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         Character Analysis
+                         ================================================= -->
+
+                    <div class="card shadow-sm mt-4">
+
+                        <div class="card-body p-4">
+
+                            <h5 class="fw-bold mb-4">
+
+                                <i
+                                    class="bi bi-list-check me-2 text-primary"
+                                ></i>
+
+                                Character Analysis
+
+                            </h5>
+
+
+                            <div class="row g-3">
+
+
+                                <!-- Uppercase -->
+
+                                <div class="col-md-6 col-lg-3">
+
+                                    <div
+                                        class="border rounded p-3"
+                                        id="uppercaseCheck"
+                                    >
+
+                                        <i
+                                            class="bi bi-circle text-secondary me-2"
+                                        ></i>
+
+                                        Uppercase
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- Lowercase -->
+
+                                <div class="col-md-6 col-lg-3">
+
+                                    <div
+                                        class="border rounded p-3"
+                                        id="lowercaseCheck"
+                                    >
+
+                                        <i
+                                            class="bi bi-circle text-secondary me-2"
+                                        ></i>
+
+                                        Lowercase
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- Numbers -->
+
+                                <div class="col-md-6 col-lg-3">
+
+                                    <div
+                                        class="border rounded p-3"
+                                        id="numberCheck"
+                                    >
+
+                                        <i
+                                            class="bi bi-circle text-secondary me-2"
+                                        ></i>
+
+                                        Numbers
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- Special -->
+
+                                <div class="col-md-6 col-lg-3">
+
+                                    <div
+                                        class="border rounded p-3"
+                                        id="specialCheck"
+                                    >
+
+                                        <i
+                                            class="bi bi-circle text-secondary me-2"
+                                        ></i>
+
+                                        Special Characters
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         Pattern Analysis
+                         ================================================= -->
+
+                    <div class="row g-4 mt-1">
+
+
+                        <!-- Detected Patterns -->
+
+                        <div class="col-lg-6">
+
+                            <div class="card shadow-sm h-100">
+
+                                <div class="card-body p-4">
+
+                                    <h5 class="fw-bold mb-4">
+
+                                        <i
+                                            class="bi bi-search me-2 text-warning"
+                                        ></i>
+
+                                        Pattern Detection
+
+                                    </h5>
+
+
+                                    <div
+                                        id="patternResults"
+                                        class="text-secondary"
+                                    >
+
+                                        No patterns detected.
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Recommendations -->
+
+                        <div class="col-lg-6">
+
+                            <div class="card shadow-sm h-100">
+
+                                <div class="card-body p-4">
+
+                                    <h5 class="fw-bold mb-4">
+
+                                        <i
+                                            class="bi bi-lightbulb me-2 text-success"
+                                        ></i>
+
+                                        Security Recommendations
+
+                                    </h5>
+
+
+                                    <ul
+                                        id="recommendationList"
+                                        class="list-group list-group-flush"
+                                    >
+
+                                        <li
+                                            class="list-group-item px-0"
+                                        >
+                                            Analyze your password to see
+                                            recommendations.
+                                        </li>
+
+                                    </ul>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         Privacy Notice
+                         ================================================= -->
+
+                    <div class="alert alert-info mt-4">
+
+                        <i
+                            class="bi bi-shield-lock-fill me-2"
+                        ></i>
+
+                        <strong>Privacy:</strong>
+
+                        SecurePass does not store the plain-text
+                        password used for analysis.
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =====================================================
+         Footer
+         ===================================================== -->
+
+    <div id="footerContainer"></div>
+
+
+    <!-- Bootstrap JavaScript -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    ></script>
+
+
+    <!-- Main JavaScript -->
+
+    <script src="js/main.js"></script>
+
+
+    <!-- Analyzer JavaScript -->
+
+    <script src="js/analyzer.js"></script>
+
+</body>
+
+</html>
