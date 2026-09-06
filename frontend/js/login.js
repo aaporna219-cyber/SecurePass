@@ -52,10 +52,8 @@ togglePassword.addEventListener("click", () => {
     const isPassword =
         passwordInput.type === "password";
 
-
     passwordInput.type =
         isPassword ? "text" : "password";
-
 
     passwordIcon.classList.toggle(
         "bi-eye",
@@ -124,7 +122,6 @@ function clearMessages() {
 function setLoading(isLoading) {
 
     loginButton.disabled = isLoading;
-
 
     if (isLoading) {
 
@@ -207,7 +204,7 @@ function validateLoginForm() {
 // Save User Session
 // =========================================================
 
-function saveUserSession(user) {
+function saveUserSession(user, token) {
 
     const userData = {
 
@@ -217,6 +214,36 @@ function saveUserSession(user) {
         role: user.role
 
     };
+
+
+    /*
+     * Clear old session data first
+     * to prevent storage conflicts.
+     */
+
+    localStorage.removeItem(
+        "securePassUser"
+    );
+
+    localStorage.removeItem(
+        "securePassLoggedIn"
+    );
+
+    localStorage.removeItem(
+        "securePassToken"
+    );
+
+    sessionStorage.removeItem(
+        "securePassUser"
+    );
+
+    sessionStorage.removeItem(
+        "securePassLoggedIn"
+    );
+
+    sessionStorage.removeItem(
+        "securePassToken"
+    );
 
 
     /*
@@ -236,6 +263,11 @@ function saveUserSession(user) {
             "true"
         );
 
+        localStorage.setItem(
+            "securePassToken",
+            token
+        );
+
         return;
     }
 
@@ -253,6 +285,11 @@ function saveUserSession(user) {
     sessionStorage.setItem(
         "securePassLoggedIn",
         "true"
+    );
+
+    sessionStorage.setItem(
+        "securePassToken",
+        token
     );
 
 }
@@ -319,9 +356,14 @@ async function loginUser() {
         }
 
 
-        // Save logged-in user
+        // =================================================
+        // Save Logged-in User + JWT Token
+        // =================================================
 
-        saveUserSession(data.user);
+        saveUserSession(
+            data.user,
+            data.token
+        );
 
 
         showSuccess(
@@ -329,9 +371,9 @@ async function loginUser() {
         );
 
 
-        /*
-         * Redirect based on role
-         */
+        // =================================================
+        // Redirect Based on Role
+        // =================================================
 
         setTimeout(() => {
 
