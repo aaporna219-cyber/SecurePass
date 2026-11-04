@@ -7,13 +7,18 @@ const { testDatabaseConnection } = require("./config/db");
 const authRoutes =
     require("./routes/authRoutes");
 
-const passwordAnalyzerRoutes = require("./routes/passwordAnalyzerRoutes");
+const passwordAnalyzerRoutes =
+    require("./routes/passwordAnalyzerRoutes");
 
 const passwordAnalysisRoutes =
     require("./routes/passwordAnalysisRoutes");
 
 const passwordHistoryRoutes =
     require("./routes/passwordHistoryRoutes");
+
+// Admin routes
+const adminRoutes =
+    require("./routes/adminRoutes");
 
 
 const app = express();
@@ -47,19 +52,28 @@ app.use(
     authRoutes
 );
 
+// Password analyzer routes
 app.use(
     "/api/password",
     passwordAnalyzerRoutes
 );
 
+// Password analysis routes
 app.use(
     "/api/password-analysis",
     passwordAnalysisRoutes
 );
-// Password History routes
+
+// Password history routes
 app.use(
     "/api/password-history",
     passwordHistoryRoutes
+);
+
+// Admin routes
+app.use(
+    "/api/admin",
+    adminRoutes
 );
 
 

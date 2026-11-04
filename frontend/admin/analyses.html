@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Analyses - SecurePass Admin</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <style>
+        body {
+            background: #f5f7fb;
+            min-height: 100vh;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+        }
+
+        .page-title {
+            font-weight: 700;
+        }
+
+        .page-subtitle {
+            color: #6c757d;
+        }
+
+        .admin-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .table th {
+            white-space: nowrap;
+        }
+
+        .table td {
+            vertical-align: middle;
+        }
+
+        .score-badge {
+            font-weight: 600;
+        }
+
+        #loadingMessage,
+        #errorMessage,
+        #emptyMessage {
+            display: none;
+        }
+
+        footer {
+            margin-top: 60px;
+            padding: 20px 0;
+            background: #212529;
+            color: white;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- ================= NAVBAR ================= -->
+
+<nav class="navbar navbar-dark bg-dark">
+
+    <div class="container">
+
+        <a
+            class="navbar-brand"
+            href="admin-dashboard.html"
+        >
+            SecurePass Admin
+        </a>
+
+        <div class="d-flex align-items-center gap-3">
+
+            <a
+                href="admin-dashboard.html"
+                class="text-white text-decoration-none"
+            >
+                Dashboard
+            </a>
+
+            <a
+                href="users.html"
+                class="text-white text-decoration-none"
+            >
+                Users
+            </a>
+
+            <a
+                href="analyses.html"
+                class="text-white text-decoration-none"
+            >
+                Analyses
+            </a>
+
+            <a
+                href="logs.html"
+                class="text-white text-decoration-none"
+            >
+                Logs
+            </a>
+
+            <button
+                id="logoutBtn"
+                class="btn btn-outline-light btn-sm"
+            >
+                Logout
+            </button>
+
+        </div>
+
+    </div>
+
+</nav>
+
+
+<!-- ================= MAIN ================= -->
+
+<div class="container py-5">
+
+    <div class="mb-4">
+
+        <h2 class="page-title">
+            Password Analyses
+        </h2>
+
+        <p class="page-subtitle">
+            View password analysis records submitted by SecurePass users.
+        </p>
+
+    </div>
+
+
+    <!-- ================= ANALYSIS CARD ================= -->
+
+    <div class="card admin-card">
+
+        <div class="card-body">
+
+            <div
+                class="d-flex justify-content-between align-items-center mb-3"
+            >
+
+                <h5 class="mb-0">
+                    Analysis Records
+                </h5>
+
+                <button
+                    id="refreshBtn"
+                    class="btn btn-dark btn-sm"
+                >
+                    Refresh
+                </button>
+
+            </div>
+
+
+            <!-- Loading -->
+
+            <div
+                id="loadingMessage"
+                class="alert alert-info text-center"
+            >
+                Loading analysis records...
+            </div>
+
+
+            <!-- Error -->
+
+            <div
+                id="errorMessage"
+                class="alert alert-danger text-center"
+            >
+                Failed to load analysis records.
+            </div>
+
+
+            <!-- Empty -->
+
+            <div
+                id="emptyMessage"
+                class="alert alert-secondary text-center"
+            >
+                No analysis records found.
+            </div>
+
+
+            <!-- Table -->
+
+            <div
+                id="tableContainer"
+                class="table-responsive"
+            >
+
+                <table class="table table-hover align-middle">
+
+                    <thead class="table-dark">
+
+                        <tr>
+                            <th>ID</th>
+                            <th>User ID</th>
+                            <th>Score</th>
+                            <th>Strength</th>
+                            <th>Password Length</th>
+                            <th>Entropy</th>
+                            <th>Character Pool</th>
+                            <th>Uppercase</th>
+                            <th>Lowercase</th>
+                            <th>Numbers</th>
+                            <th>Special</th>
+                            <th>Created At</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="analysesTableBody">
+                        <!-- Analysis records will appear here -->
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Back Button -->
+
+    <div class="mt-4">
+
+        <a
+            href="admin-dashboard.html"
+            class="btn btn-outline-dark"
+        >
+            ← Back to Dashboard
+        </a>
+
+    </div>
+
+</div>
+
+
+<!-- ================= FOOTER ================= -->
+
+<footer>
+
+    <div class="container">
+
+        <small>
+            © 2026 SecurePass. All rights reserved.
+        </small>
+
+    </div>
+
+</footer>
+
+
+<!-- ================= JAVASCRIPT ================= -->
+
+<script>
+
+    const analysesTableBody =
+        document.getElementById("analysesTableBody");
+
+    const loadingMessage =
+        document.getElementById("loadingMessage");
+
+    const errorMessage =
+        document.getElementById("errorMessage");
+
+    const emptyMessage =
+        document.getElementById("emptyMessage");
+
+    const tableContainer =
+        document.getElementById("tableContainer");
+
+
+    // ================= TOKEN =================
+
+    function getToken() {
+
+        return (
+            sessionStorage.getItem("securePassToken") ||
+            sessionStorage.getItem("token") ||
+            sessionStorage.getItem("authToken") ||
+            localStorage.getItem("securePassToken") ||
+            localStorage.getItem("token") ||
+            localStorage.getItem("authToken")
+        );
+
+    }
+
+
+    // ================= DATE =================
+
+    function formatDate(dateValue) {
+
+        if (!dateValue) {
+            return "N/A";
+        }
+
+        const date = new Date(dateValue);
+
+        if (isNaN(date.getTime())) {
+            return dateValue;
+        }
+
+        return date.toLocaleString();
+
+    }
+
+
+    // ================= HTML ESCAPE =================
+
+    function escapeHtml(value) {
+
+        const div = document.createElement("div");
+
+        div.textContent = String(value ?? "");
+
+        return div.innerHTML;
+
+    }
+
+
+    // ================= BOOLEAN DISPLAY =================
+
+    function booleanDisplay(value) {
+
+        if (
+            value === true ||
+            value === 1 ||
+            value === "1" ||
+            value === "true"
+        ) {
+
+            return '<span class="badge bg-success">Yes</span>';
+
+        }
+
+        return '<span class="badge bg-secondary">No</span>';
+
+    }
+
+
+    // ================= SCORE BADGE =================
+
+    function scoreBadge(score) {
+
+        const number = Number(score);
+
+        if (isNaN(number)) {
+
+            return `
+                <span class="badge bg-secondary score-badge">
+                    N/A
+                </span>
+            `;
+
+        }
+
+        let badgeClass = "bg-danger";
+
+        if (number >= 80) {
+
+            badgeClass = "bg-success";
+
+        } else if (number >= 60) {
+
+            badgeClass = "bg-primary";
+
+        } else if (number >= 40) {
+
+            badgeClass = "bg-warning text-dark";
+
+        }
+
+        return `
+            <span class="badge ${badgeClass} score-badge">
+                ${escapeHtml(number)}
+            </span>
+        `;
+
+    }
+
+
+    // ================= SHOW LOADING =================
+
+    function showLoading() {
+
+        loadingMessage.style.display = "block";
+        errorMessage.style.display = "none";
+        emptyMessage.style.display = "none";
+        tableContainer.style.display = "none";
+
+    }
+
+
+    // ================= SHOW ERROR =================
+
+    function showError(message) {
+
+        loadingMessage.style.display = "none";
+        errorMessage.style.display = "block";
+        emptyMessage.style.display = "none";
+        tableContainer.style.display = "none";
+
+        errorMessage.textContent = message;
+
+    }
+
+
+    // ================= RENDER =================
+
+    function renderAnalyses(records) {
+
+        loadingMessage.style.display = "none";
+        errorMessage.style.display = "none";
+
+        analysesTableBody.innerHTML = "";
+
+
+        if (!records || records.length === 0) {
+
+            emptyMessage.style.display = "block";
+            tableContainer.style.display = "none";
+
+            return;
+        }
+
+
+        emptyMessage.style.display = "none";
+        tableContainer.style.display = "block";
+
+
+        records.forEach(function(record) {
+
+            const row =
+                document.createElement("tr");
+
+
+            const id =
+                record.id ??
+                record.analysis_id ??
+                "N/A";
+
+
+            const userId =
+                record.user_id ??
+                record.userId ??
+                "N/A";
+
+
+            const score =
+                record.score ??
+                record.strength_score ??
+                "N/A";
+
+
+            const strength =
+                record.strength_level ??
+                record.strength ??
+                "N/A";
+
+
+            const passwordLength =
+                record.password_length ??
+                record.passwordLength ??
+                "N/A";
+
+
+            const entropy =
+                record.entropy ??
+                "N/A";
+
+
+            const characterPool =
+                record.character_pool ??
+                record.characterPool ??
+                "N/A";
+
+
+            const uppercase =
+                record.has_uppercase ??
+                record.hasUppercase ??
+                false;
+
+
+            const lowercase =
+                record.has_lowercase ??
+                record.hasLowercase ??
+                false;
+
+
+            const numbers =
+                record.has_numbers ??
+                record.hasNumbers ??
+                false;
+
+
+            const special =
+                record.has_special ??
+                record.hasSpecial ??
+                false;
+
+
+            const createdAt =
+                record.created_at ??
+                record.createdAt ??
+                null;
+
+
+            row.innerHTML = `
+
+                <td>
+                    ${escapeHtml(id)}
+                </td>
+
+                <td>
+                    ${escapeHtml(userId)}
+                </td>
+
+                <td>
+                    ${scoreBadge(score)}
+                </td>
+
+                <td>
+                    <strong>
+                        ${escapeHtml(strength)}
+                    </strong>
+                </td>
+
+                <td>
+                    ${escapeHtml(passwordLength)}
+                </td>
+
+                <td>
+                    ${escapeHtml(entropy)}
+                </td>
+
+                <td>
+                    ${escapeHtml(characterPool)}
+                </td>
+
+                <td>
+                    ${booleanDisplay(uppercase)}
+                </td>
+
+                <td>
+                    ${booleanDisplay(lowercase)}
+                </td>
+
+                <td>
+                    ${booleanDisplay(numbers)}
+                </td>
+
+                <td>
+                    ${booleanDisplay(special)}
+                </td>
+
+                <td>
+                    ${escapeHtml(formatDate(createdAt))}
+                </td>
+
+            `;
+
+
+            analysesTableBody.appendChild(row);
+
+        });
+
+    }
+
+
+    // ================= LOAD ANALYSES =================
+
+    async function loadAnalyses() {
+
+        const token = getToken();
+
+
+        if (!token) {
+
+            showError(
+                "Authentication token not found. Please login first."
+            );
+
+            return;
+        }
+
+
+        /*
+         * Admin analysis API will be connected
+         * after the admin backend is implemented.
+         */
+
+        showError(
+            "Admin analysis API is not configured yet."
+        );
+
+    }
+
+
+    // ================= REFRESH =================
+
+    document
+        .getElementById("refreshBtn")
+        .addEventListener(
+            "click",
+            loadAnalyses
+        );
+
+
+    // ================= LOGOUT =================
+
+    document
+        .getElementById("logoutBtn")
+        .addEventListener(
+            "click",
+            function() {
+
+                sessionStorage.clear();
+
+                localStorage.removeItem("securePassToken");
+                localStorage.removeItem("token");
+                localStorage.removeItem("authToken");
+                localStorage.removeItem("securePassUser");
+                localStorage.removeItem("user");
+                localStorage.removeItem("currentUser");
+                localStorage.removeItem("loggedInUser");
+
+                window.location.href =
+                    "../login.html";
+
+            }
+        );
+
+
+    // ================= INITIAL LOAD =================
+
+    loadAnalyses();
+
+</script>
+
+</body>
+</html>

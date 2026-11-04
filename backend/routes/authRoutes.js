@@ -1,20 +1,34 @@
+// =========================================================
+// SecurePass - Authentication Routes
+// =========================================================
+
 const express = require("express");
-
-const {
-    registerUser,
-    loginUser
-} = require("../controllers/authController");
-
 
 const router = express.Router();
 
 
 // =========================================================
-// Authentication Routes
+// Controllers
 // =========================================================
 
+const {
+    registerUser,
+    loginUser,
+    logoutUser
+} = require("../controllers/authController");
+
+
+// =========================================================
+// Middleware
+// =========================================================
+
+const authMiddleware =
+    require("../middleware/authMiddleware");
+
+
+// =========================================================
 // Register
-// POST /api/auth/register
+// =========================================================
 
 router.post(
     "/register",
@@ -22,8 +36,9 @@ router.post(
 );
 
 
+// =========================================================
 // Login
-// POST /api/auth/login
+// =========================================================
 
 router.post(
     "/login",
@@ -32,7 +47,18 @@ router.post(
 
 
 // =========================================================
-// Export Router
+// Logout
+// =========================================================
+
+router.post(
+    "/logout",
+    authMiddleware,
+    logoutUser
+);
+
+
+// =========================================================
+// Export
 // =========================================================
 
 module.exports = router;

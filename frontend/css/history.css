@@ -1,0 +1,66 @@
+/* =========================================================
+   SecurePass - History
+   ========================================================= */
+
+.history-page {
+    padding: 50px 0;
+}
+
+.history-header {
+    margin-bottom: 35px;
+}
+
+.history-header h1 {
+    font-weight: 700;
+}
+
+.history-card {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.07);
+}
+
+.history-table {
+    vertical-align: middle;
+}
+
+.history-table th {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.history-table td {
+    vertical-align: middle;
+}
+
+.strength-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.empty-history {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.empty-history i {
+    font-size: 55px;
+    color: #adb5bd;
+    margin-bottom: 15px;
+}
+
+.history-responsive {
+    overflow-x: auto;
+}
+
+@media (max-width: 768px) {
+    .history-page {
+        padding: 30px 0;
+    }
+
+    .history-table {
+        font-size: 13px;
+    }
+}

@@ -1,0 +1,110 @@
+/* =========================================================
+   SecurePass - Analyzer Page
+   ========================================================= */
+
+.analyzer-page {
+    padding: 50px 0;
+}
+
+.analyzer-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.analyzer-header h1 {
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.analyzer-header p {
+    color: #6c757d;
+}
+
+.analyzer-card {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.password-input-wrapper {
+    position: relative;
+}
+
+.password-input-wrapper input {
+    padding-right: 50px;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: #6c757d;
+}
+
+.password-toggle:hover {
+    color: #0d6efd;
+}
+
+.analyze-btn {
+    width: 100%;
+    font-weight: 600;
+    padding: 12px;
+    border-radius: 10px;
+}
+
+.score-circle {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 10px solid #0d6efd;
+}
+
+.score-value {
+    font-size: 42px;
+    font-weight: 700;
+}
+
+.strength-level {
+    font-size: 22px;
+    font-weight: 700;
+    margin-top: 15px;
+}
+
+.analysis-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.analysis-item:last-child {
+    border-bottom: none;
+}
+
+.check-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.check-item i {
+    font-size: 18px;
+}
+
+.recommendation-list {
+    padding-left: 20px;
+}
+
+.recommendation-list li {
+    margin-bottom: 8px;
+}

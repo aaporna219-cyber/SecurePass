@@ -32,7 +32,9 @@ async function loadComponent(
 ) {
 
     const container =
-        document.getElementById(containerId);
+        document.getElementById(
+            containerId
+        );
 
 
     if (!container) {
@@ -65,7 +67,10 @@ async function loadComponent(
 
         // Navbar specific setup
 
-        if (containerId === "navbarContainer") {
+        if (
+            containerId ===
+            "navbarContainer"
+        ) {
 
             setupNavbar();
 
@@ -82,6 +87,25 @@ async function loadComponent(
         );
 
     }
+
+}
+
+
+// =========================================================
+// Get Authentication Token
+// =========================================================
+
+function getAuthToken() {
+
+    return (
+        sessionStorage.getItem("token") ||
+        sessionStorage.getItem("authToken") ||
+        sessionStorage.getItem("securePassToken") ||
+        localStorage.getItem("token") ||
+        localStorage.getItem("authToken") ||
+        localStorage.getItem("securePassToken") ||
+        null
+    );
 
 }
 
@@ -252,28 +276,131 @@ function setupNavbar() {
 
 
 // =========================================================
+// Clear Authentication Data
+// =========================================================
+
+function clearAuthenticationData() {
+
+    // -----------------------------------------
+    // Session Storage
+    // -----------------------------------------
+
+    sessionStorage.removeItem("token");
+
+    sessionStorage.removeItem("authToken");
+
+    sessionStorage.removeItem(
+        "securePassToken"
+    );
+
+    sessionStorage.removeItem(
+        "securePassUser"
+    );
+
+    sessionStorage.removeItem(
+        "user"
+    );
+
+    sessionStorage.removeItem(
+        "currentUser"
+    );
+
+    sessionStorage.removeItem(
+        "loggedInUser"
+    );
+
+    sessionStorage.removeItem(
+        "securePassLoggedIn"
+    );
+
+
+    // -----------------------------------------
+    // Local Storage
+    // -----------------------------------------
+
+    localStorage.removeItem("token");
+
+    localStorage.removeItem("authToken");
+
+    localStorage.removeItem(
+        "securePassToken"
+    );
+
+    localStorage.removeItem(
+        "securePassUser"
+    );
+
+    localStorage.removeItem(
+        "user"
+    );
+
+    localStorage.removeItem(
+        "currentUser"
+    );
+
+    localStorage.removeItem(
+        "loggedInUser"
+    );
+
+    localStorage.removeItem(
+        "securePassLoggedIn"
+    );
+
+}
+
+
+// =========================================================
 // Logout
 // =========================================================
 
-function handleLogout() {
+async function handleLogout() {
 
-    localStorage.removeItem(
-        "securePassUser"
-    );
-
-    localStorage.removeItem(
-        "securePassLoggedIn"
-    );
+    const token =
+        getAuthToken();
 
 
-    sessionStorage.removeItem(
-        "securePassUser"
-    );
+    // -----------------------------------------
+    // Send Logout Event to Backend
+    // -----------------------------------------
 
-    sessionStorage.removeItem(
-        "securePassLoggedIn"
-    );
+    if (token) {
 
+        try {
+
+            await fetch(
+                "http://localhost:5000/api/auth/logout",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Authorization":
+                            `Bearer ${token}`
+                    }
+                }
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Logout API Error:",
+                error.message
+            );
+
+        }
+
+    }
+
+
+    // -----------------------------------------
+    // Clear Local Authentication
+    // -----------------------------------------
+
+    clearAuthenticationData();
+
+
+    // -----------------------------------------
+    // Redirect
+    // -----------------------------------------
 
     window.location.href =
         "login.html";

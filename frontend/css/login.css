@@ -1,0 +1,73 @@
+/* =========================================================
+   SecurePass - Login
+   ========================================================= */
+
+.login-page {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 15px;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 450px;
+    border: none;
+    border-radius: 18px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+}
+
+.login-card-body {
+    padding: 40px;
+}
+
+.login-logo {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 32px;
+}
+
+.login-title {
+    text-align: center;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.login-subtitle {
+    text-align: center;
+    color: #6c757d;
+    margin-bottom: 30px;
+}
+
+.login-form .form-control {
+    min-height: 48px;
+    border-radius: 10px;
+}
+
+.login-form .form-label {
+    font-weight: 500;
+}
+
+.login-btn {
+    width: 100%;
+    min-height: 48px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+.login-footer {
+    text-align: center;
+    margin-top: 25px;
+    color: #6c757d;
+}
+
+.login-footer a {
+    text-decoration: none;
+    font-weight: 600;
+}

@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="SecurePass Admin Security Logs"
+    >
+
+    <title>Security Logs - SecurePass Admin</title>
+
+
+    <!-- =====================================================
+         Bootstrap CSS
+         ===================================================== -->
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+
+    <!-- =====================================================
+         Bootstrap Icons
+         ===================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    >
+
+
+    <!-- =====================================================
+         Admin CSS
+         ===================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="../css/admin.css"
+    >
+
+
+    <!-- =====================================================
+         Page Style
+         ===================================================== -->
+
+    <style>
+
+        body {
+            background: #f5f7fb;
+            min-height: 100vh;
+        }
+
+
+        .navbar-brand {
+            font-weight: 700;
+        }
+
+
+        .page-title {
+            font-weight: 700;
+        }
+
+
+        .page-subtitle {
+            color: #6c757d;
+        }
+
+
+        .admin-card {
+            border: none;
+            border-radius: 12px;
+            background: #ffffff;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+        }
+
+
+        .table th {
+            white-space: nowrap;
+        }
+
+
+        .table td {
+            vertical-align: middle;
+        }
+
+
+        #loadingState,
+        #errorState,
+        #emptyState {
+            display: none;
+        }
+
+
+        footer {
+            margin-top: 60px;
+            padding: 20px 0;
+            background: #212529;
+            color: #ffffff;
+            text-align: center;
+        }
+
+    </style>
+
+</head>
+
+
+<body class="d-flex flex-column min-vh-100">
+
+
+<!-- =====================================================
+     NAVBAR
+     ===================================================== -->
+
+<nav class="navbar navbar-dark bg-dark">
+
+    <div class="container">
+
+        <a
+            class="navbar-brand"
+            href="admin-dashboard.html"
+        >
+            SecurePass Admin
+        </a>
+
+
+        <div class="d-flex align-items-center gap-3">
+
+            <a
+                href="admin-dashboard.html"
+                class="text-white text-decoration-none"
+            >
+                Dashboard
+            </a>
+
+
+            <a
+                href="users.html"
+                class="text-white text-decoration-none"
+            >
+                Users
+            </a>
+
+
+            <a
+                href="analyses.html"
+                class="text-white text-decoration-none"
+            >
+                Analyses
+            </a>
+
+
+            <a
+                href="logs.html"
+                class="text-white text-decoration-none fw-semibold"
+            >
+                Logs
+            </a>
+
+
+            <button
+                id="logoutButton"
+                type="button"
+                class="btn btn-outline-light btn-sm"
+            >
+                Logout
+            </button>
+
+        </div>
+
+    </div>
+
+</nav>
+
+
+
+<!-- =====================================================
+     MAIN CONTENT
+     ===================================================== -->
+
+<main class="flex-grow-1">
+
+    <div class="container py-5">
+
+
+        <!-- =================================================
+             PAGE HEADER
+             ================================================= -->
+
+        <div class="mb-4">
+
+            <h2 class="page-title">
+                Security Logs
+            </h2>
+
+
+            <p class="page-subtitle mb-0">
+                Monitor authentication and security-related system activity.
+            </p>
+
+        </div>
+
+
+
+        <!-- =================================================
+             LOGS CARD
+             ================================================= -->
+
+        <div class="card admin-card">
+
+            <div class="card-body p-4">
+
+
+                <!-- =================================================
+                     CARD HEADER
+                     ================================================= -->
+
+                <div
+                    class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4"
+                >
+
+                    <div>
+
+                        <h5 class="mb-1">
+                            System Activity Logs
+                        </h5>
+
+
+                        <small class="text-muted">
+                            Security events recorded by SecurePass
+                        </small>
+
+                    </div>
+
+
+                    <button
+                        id="refreshButton"
+                        type="button"
+                        class="btn btn-dark"
+                    >
+                        <i class="bi bi-arrow-clockwise me-1"></i>
+                        Refresh
+                    </button>
+
+                </div>
+
+
+
+                <!-- =================================================
+                     LOADING STATE
+                     ================================================= -->
+
+                <div
+                    id="loadingState"
+                    class="alert alert-info text-center"
+                >
+
+                    <div
+                        class="spinner-border spinner-border-sm me-2"
+                        role="status"
+                    ></div>
+
+                    Loading security logs...
+
+                </div>
+
+
+
+                <!-- =================================================
+                     ERROR STATE
+                     ================================================= -->
+
+                <div
+                    id="errorState"
+                    class="alert alert-danger text-center"
+                >
+                    Failed to load security logs.
+                </div>
+
+
+
+                <!-- =================================================
+                     EMPTY STATE
+                     ================================================= -->
+
+                <div
+                    id="emptyState"
+                    class="alert alert-secondary text-center"
+                >
+                    No security logs found.
+                </div>
+
+
+
+                <!-- =================================================
+                     LOGS TABLE
+                     ================================================= -->
+
+                <div class="table-responsive">
+
+                    <table
+                        class="table table-hover align-middle"
+                    >
+
+                        <thead class="table-dark">
+
+                            <tr>
+
+                                <th>
+                                    ID
+                                </th>
+
+                                <th>
+                                    User ID
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
+                                <th>
+                                    Description
+                                </th>
+
+                                <th>
+                                    IP Address
+                                </th>
+
+                                <th>
+                                    Created At
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="logsTableBody">
+
+                            <!-- Logs will be loaded here -->
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             BACK TO DASHBOARD
+             ================================================= -->
+
+        <div class="mt-4">
+
+            <a
+                href="admin-dashboard.html"
+                class="btn btn-outline-dark"
+            >
+
+                <i class="bi bi-arrow-left me-1"></i>
+
+                Back to Dashboard
+
+            </a>
+
+        </div>
+
+    </div>
+
+</main>
+
+
+
+<!-- =====================================================
+     FOOTER
+     ===================================================== -->
+
+<footer>
+
+    <div class="container">
+
+        <small>
+            © 2026 SecurePass. All rights reserved.
+        </small>
+
+    </div>
+
+</footer>
+
+
+
+<!-- =====================================================
+     Bootstrap JavaScript
+     ===================================================== -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+></script>
+
+
+
+<!-- =====================================================
+     Admin Logs JavaScript
+     ===================================================== -->
+
+<script src="../js/admin/logs.js"></script>
+
+
+</body>
+
+</html>

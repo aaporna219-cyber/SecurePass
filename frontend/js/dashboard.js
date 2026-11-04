@@ -1,229 +1,251 @@
-// =========================================================
-// SecurePass - Dashboard
-// =========================================================
+// =====================================================
+// SecurePass - Dashboard JavaScript
+// =====================================================
 
+const API_BASE_URL = "http://localhost:5000";
 
-// =========================================================
-// Get Logged-in User
-// =========================================================
-
-function getLoggedInUser() {
-
-    const localUser =
-        localStorage.getItem("securePassUser");
-
-    const sessionUser =
-        sessionStorage.getItem("securePassUser");
-
-
-    if (localUser) {
-
-        try {
-
-            return JSON.parse(localUser);
-
-        } catch (error) {
-
-            console.error(
-                "Invalid local user data."
-            );
-
-            localStorage.removeItem(
-                "securePassUser"
-            );
-
-            localStorage.removeItem(
-                "securePassLoggedIn"
-            );
-
-        }
-
-    }
-
-
-    if (sessionUser) {
-
-        try {
-
-            return JSON.parse(sessionUser);
-
-        } catch (error) {
-
-            console.error(
-                "Invalid session user data."
-            );
-
-            sessionStorage.removeItem(
-                "securePassUser"
-            );
-
-            sessionStorage.removeItem(
-                "securePassLoggedIn"
-            );
-
-        }
-
-    }
-
-
-    return null;
-
+// -----------------------------------------------------
+// Get authentication token
+// -----------------------------------------------------
+function getAuthToken() {
+    return (
+        sessionStorage.getItem("token") ||
+        sessionStorage.getItem("authToken") ||
+        sessionStorage.getItem("securePassToken") ||
+        localStorage.getItem("token") ||
+        localStorage.getItem("authToken") ||
+        localStorage.getItem("securePassToken")
+    );
 }
 
 
-// =========================================================
-// Protect Dashboard
-// =========================================================
+// -----------------------------------------------------
+// Get logged-in user
+// -----------------------------------------------------
+function getLoggedInUser() {
 
-function checkAuthentication() {
+    const possibleKeys = [
+        "securePassUser",
+        "user",
+        "currentUser",
+        "loggedInUser"
+    ];
 
-    const user =
-        getLoggedInUser();
+    for (const key of possibleKeys) {
+
+        const data =
+            sessionStorage.getItem(key) ||
+            localStorage.getItem(key);
+
+        if (data) {
+
+            try {
+                return JSON.parse(data);
+            } catch (error) {
+                console.error("User data parse error:", error);
+            }
+        }
+    }
+
+    return null;
+}
+
+
+// -----------------------------------------------------
+// Display Account Information
+// -----------------------------------------------------
+function loadAccountInformation() {
+
+    const user = getLoggedInUser();
+
+    const nameElement = document.getElementById("accountName");
+    const emailElement = document.getElementById("accountEmail");
+    const roleElement = document.getElementById("accountRole");
+    const welcomeElement = document.getElementById("userName");
 
 
     if (!user) {
 
-        window.location.href =
-            "login.html";
+        console.warn("No logged-in user found.");
 
-        return null;
+        if (nameElement) {
+            nameElement.textContent = "-";
+        }
 
+        if (emailElement) {
+            emailElement.textContent = "-";
+        }
+
+        return;
     }
 
 
-    return user;
+    // Name
+    if (nameElement) {
 
+        nameElement.textContent =
+            user.name ||
+            user.full_name ||
+            user.username ||
+            "-";
+    }
+
+
+    // Email
+    if (emailElement) {
+
+        emailElement.textContent =
+            user.email ||
+            "-";
+    }
+
+
+    // Role
+    if (roleElement) {
+
+        roleElement.textContent =
+            user.role ||
+            "User";
+    }
+
+
+    // Welcome name
+    if (welcomeElement) {
+
+        welcomeElement.textContent =
+            user.name ||
+            user.full_name ||
+            user.username ||
+            "User";
+    }
+
+
+    console.log("Dashboard User:", user);
 }
 
 
-// =========================================================
-// Display User Information
-// =========================================================
+// -----------------------------------------------------
+// Load Password Analysis History
+// -----------------------------------------------------
+async function loadPasswordHistory() {
 
-function displayUserInformation(user) {
+    const token = getAuthToken();
 
-    const userName =
-        document.getElementById("userName");
+    if (!token) {
 
-    const accountName =
-        document.getElementById("accountName");
+        console.warn("Authentication token not found.");
 
-    const accountEmail =
-        document.getElementById("accountEmail");
-
-    const accountRole =
-        document.getElementById("accountRole");
-
-
-    if (userName) {
-
-        userName.textContent =
-            user.name || "User";
-
+        return;
     }
 
 
-    if (accountName) {
+    try {
 
-        accountName.textContent =
-            user.name || "Not available";
+        const response = await fetch(
+            `${API_BASE_URL}/api/password-history`,
+            {
+                method: "GET",
 
-    }
-
-
-    if (accountEmail) {
-
-        accountEmail.textContent =
-            user.email || "Not available";
-
-    }
-
-
-    if (accountRole) {
-
-        const role =
-            user.role || "user";
-
-
-        accountRole.textContent =
-            role === "admin"
-                ? "Administrator"
-                : "User";
-
-
-        accountRole.classList.remove(
-            "text-bg-primary",
-            "text-bg-danger"
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                }
+            }
         );
 
 
-        if (role === "admin") {
+        const data = await response.json();
 
-            accountRole.classList.add(
-                "text-bg-danger"
+
+        if (!response.ok) {
+
+            console.error(
+                "Password History Error:",
+                data
             );
 
-        } else {
-
-            accountRole.classList.add(
-                "text-bg-primary"
-            );
-
-        }
-
-    }
-
-}
-
-
-// =========================================================
-// Logout
-// =========================================================
-
-function logoutUser() {
-
-    localStorage.removeItem(
-        "securePassUser"
-    );
-
-    localStorage.removeItem(
-        "securePassLoggedIn"
-    );
-
-
-    sessionStorage.removeItem(
-        "securePassUser"
-    );
-
-    sessionStorage.removeItem(
-        "securePassLoggedIn"
-    );
-
-
-    window.location.href =
-        "login.html";
-
-}
-
-
-// =========================================================
-// Initialize Dashboard
-// =========================================================
-
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
-
-        const user =
-            checkAuthentication();
-
-
-        if (!user) {
             return;
         }
 
 
-        displayUserInformation(user);
+        console.log(
+            "Dashboard Password History:",
+            data
+        );
+
+
+        // Store latest history in session
+        sessionStorage.setItem(
+            "passwordHistory",
+            JSON.stringify(data.history || [])
+        );
+
+
+        // Optional history count
+        const historyCount =
+            document.getElementById("historyCount");
+
+        if (historyCount) {
+
+            historyCount.textContent =
+                data.count || 0;
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Password History Fetch Error:",
+            error
+        );
+    }
+}
+
+
+// -----------------------------------------------------
+// Check Authentication
+// -----------------------------------------------------
+function checkAuthentication() {
+
+    const token = getAuthToken();
+
+    if (!token) {
+
+        console.warn(
+            "No authentication token. User may not be logged in."
+        );
+
+        // Don't redirect immediately while testing.
+        // This prevents dashboard from disappearing unexpectedly.
+
+        return false;
+    }
+
+    return true;
+}
+
+
+// -----------------------------------------------------
+// Dashboard Initialization
+// -----------------------------------------------------
+document.addEventListener(
+    "DOMContentLoaded",
+    async function () {
+
+        console.log(
+            "SecurePass Dashboard Loaded"
+        );
+
+
+        // Account information
+        loadAccountInformation();
+
+
+        // Authentication
+        if (checkAuthentication()) {
+
+            // Load history from backend
+            await loadPasswordHistory();
+        }
 
     }
 );

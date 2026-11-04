@@ -1,266 +1,261 @@
 // =========================================================
-// SecurePass - Login
+// SecurePass - Login JavaScript
 // =========================================================
 
-const API_BASE_URL = "http://localhost:5000";
+document.addEventListener("DOMContentLoaded", () => {
+
+    const API_URL =
+        "http://localhost:5000/api/auth/login";
 
 
-// =========================================================
-// DOM Elements
-// =========================================================
+    // =====================================================
+    // DOM Elements
+    // =====================================================
 
-const loginForm =
-    document.getElementById("loginForm");
+    const loginForm =
+        document.getElementById("loginForm");
 
-const emailInput =
-    document.getElementById("email");
+    const emailInput =
+        document.getElementById("email");
 
-const passwordInput =
-    document.getElementById("password");
+    const passwordInput =
+        document.getElementById("password");
 
-const rememberMe =
-    document.getElementById("rememberMe");
+    const togglePassword =
+        document.getElementById("togglePassword");
 
-const loginButton =
-    document.getElementById("loginButton");
+    const passwordIcon =
+        document.getElementById("passwordIcon");
 
-const loginButtonText =
-    document.getElementById("loginButtonText");
+    const rememberMe =
+        document.getElementById("rememberMe");
 
-const loginSpinner =
-    document.getElementById("loginSpinner");
+    const loginError =
+        document.getElementById("loginError");
 
-const loginError =
-    document.getElementById("loginError");
+    const loginSuccess =
+        document.getElementById("loginSuccess");
 
-const loginSuccess =
-    document.getElementById("loginSuccess");
+    const loginButton =
+        document.getElementById("loginButton");
 
-const togglePassword =
-    document.getElementById("togglePassword");
+    const loginButtonText =
+        document.getElementById("loginButtonText");
 
-const passwordIcon =
-    document.getElementById("passwordIcon");
-
-
-// =========================================================
-// Show / Hide Password
-// =========================================================
-
-togglePassword.addEventListener("click", () => {
-
-    const isPassword =
-        passwordInput.type === "password";
-
-    passwordInput.type =
-        isPassword ? "text" : "password";
-
-    passwordIcon.classList.toggle(
-        "bi-eye",
-        !isPassword
-    );
-
-    passwordIcon.classList.toggle(
-        "bi-eye-slash",
-        isPassword
-    );
-
-});
+    const loginSpinner =
+        document.getElementById("loginSpinner");
 
 
-// =========================================================
-// Show Error
-// =========================================================
+    // =====================================================
+    // Show / Hide Password
+    // =====================================================
 
-function showError(message) {
+    if (togglePassword && passwordInput) {
 
-    loginError.textContent = message;
+        togglePassword.addEventListener(
+            "click",
+            () => {
 
-    loginError.classList.remove("d-none");
-
-    loginSuccess.classList.add("d-none");
-
-}
-
-
-// =========================================================
-// Show Success
-// =========================================================
-
-function showSuccess(message) {
-
-    loginSuccess.textContent = message;
-
-    loginSuccess.classList.remove("d-none");
-
-    loginError.classList.add("d-none");
-
-}
+                const isPassword =
+                    passwordInput.type === "password";
 
 
-// =========================================================
-// Clear Messages
-// =========================================================
-
-function clearMessages() {
-
-    loginError.classList.add("d-none");
-
-    loginSuccess.classList.add("d-none");
-
-    loginError.textContent = "";
-
-    loginSuccess.textContent = "";
-
-}
+                passwordInput.type =
+                    isPassword
+                        ? "text"
+                        : "password";
 
 
-// =========================================================
-// Loading State
-// =========================================================
+                if (passwordIcon) {
 
-function setLoading(isLoading) {
+                    passwordIcon.classList.toggle(
+                        "bi-eye",
+                        !isPassword
+                    );
 
-    loginButton.disabled = isLoading;
+                    passwordIcon.classList.toggle(
+                        "bi-eye-slash",
+                        isPassword
+                    );
+                }
 
-    if (isLoading) {
 
-        loginButtonText.classList.add(
-            "d-none"
+                togglePassword.setAttribute(
+                    "aria-label",
+                    isPassword
+                        ? "Hide password"
+                        : "Show password"
+                );
+
+            }
         );
-
-        loginSpinner.classList.remove(
-            "d-none"
-        );
-
-    } else {
-
-        loginButtonText.classList.remove(
-            "d-none"
-        );
-
-        loginSpinner.classList.add(
-            "d-none"
-        );
-
-    }
-
-}
-
-
-// =========================================================
-// Validate Login Form
-// =========================================================
-
-function validateLoginForm() {
-
-    const email =
-        emailInput.value.trim();
-
-    const password =
-        passwordInput.value;
-
-
-    // Email validation
-
-    const emailPattern =
-        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-
-    if (!emailPattern.test(email)) {
-
-        showError(
-            "Please enter a valid email address."
-        );
-
-        emailInput.focus();
-
-        return false;
-
     }
 
 
-    // Password validation
+    // =====================================================
+    // Error Message
+    // =====================================================
 
-    if (!password) {
+    function showError(message) {
 
-        showError(
-            "Please enter your password."
-        );
+        if (loginError) {
 
-        passwordInput.focus();
+            loginError.textContent =
+                message;
 
-        return false;
-
+            loginError.classList.remove(
+                "d-none"
+            );
+        }
     }
 
 
-    return true;
+    // =====================================================
+    // Clear Error
+    // =====================================================
 
-}
+    function clearError() {
 
+        if (loginError) {
 
-// =========================================================
-// Save User Session
-// =========================================================
+            loginError.textContent = "";
 
-function saveUserSession(user, token) {
-
-    const userData = {
-
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role
-
-    };
+            loginError.classList.add(
+                "d-none"
+            );
+        }
+    }
 
 
-    /*
-     * Clear old session data first
-     * to prevent storage conflicts.
-     */
+    // =====================================================
+    // Success Message
+    // =====================================================
 
-    localStorage.removeItem(
-        "securePassUser"
-    );
+    function showSuccess(message) {
 
-    localStorage.removeItem(
-        "securePassLoggedIn"
-    );
+        if (loginSuccess) {
 
-    localStorage.removeItem(
-        "securePassToken"
-    );
+            loginSuccess.textContent =
+                message;
 
-    sessionStorage.removeItem(
-        "securePassUser"
-    );
-
-    sessionStorage.removeItem(
-        "securePassLoggedIn"
-    );
-
-    sessionStorage.removeItem(
-        "securePassToken"
-    );
+            loginSuccess.classList.remove(
+                "d-none"
+            );
+        }
+    }
 
 
-    /*
-     * Remember Me ON
-     * → localStorage
-     */
+    // =====================================================
+    // Clear Success
+    // =====================================================
 
-    if (rememberMe.checked) {
+    function clearSuccess() {
+
+        if (loginSuccess) {
+
+            loginSuccess.textContent = "";
+
+            loginSuccess.classList.add(
+                "d-none"
+            );
+        }
+    }
+
+
+    // =====================================================
+    // Loading State
+    // =====================================================
+
+    function setLoading(isLoading) {
+
+        if (!loginButton) {
+            return;
+        }
+
+
+        loginButton.disabled =
+            isLoading;
+
+
+        if (loginButtonText) {
+
+            loginButtonText.classList.toggle(
+                "d-none",
+                isLoading
+            );
+        }
+
+
+        if (loginSpinner) {
+
+            loginSpinner.classList.toggle(
+                "d-none",
+                !isLoading
+            );
+        }
+    }
+
+
+    // =====================================================
+    // Save Authentication Data
+    // =====================================================
+
+    function saveLoginData(token, user) {
+
+        // Clear old authentication data
+        sessionStorage.removeItem("token");
+        sessionStorage.removeItem("authToken");
+        sessionStorage.removeItem("securePassToken");
+
+        sessionStorage.removeItem("securePassUser");
+        sessionStorage.removeItem("user");
+        sessionStorage.removeItem("currentUser");
+        sessionStorage.removeItem("loggedInUser");
+        sessionStorage.removeItem("securePassLoggedIn");
+
+
+        localStorage.removeItem("token");
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("securePassToken");
+
+        localStorage.removeItem("securePassUser");
+        localStorage.removeItem("user");
+        localStorage.removeItem("currentUser");
+        localStorage.removeItem("loggedInUser");
+        localStorage.removeItem("securePassLoggedIn");
+
+
+        // =================================================
+        // Save Authentication Token
+        // =================================================
+
+        // Save in BOTH storages so admin dashboard
+        // can always find the authentication token.
+
+        sessionStorage.setItem(
+            "token",
+            token
+        );
+
+        sessionStorage.setItem(
+            "authToken",
+            token
+        );
+
+        sessionStorage.setItem(
+            "securePassToken",
+            token
+        );
+
 
         localStorage.setItem(
-            "securePassUser",
-            JSON.stringify(userData)
+            "token",
+            token
         );
 
         localStorage.setItem(
-            "securePassLoggedIn",
-            "true"
+            "authToken",
+            token
         );
 
         localStorage.setItem(
@@ -268,162 +263,332 @@ function saveUserSession(user, token) {
             token
         );
 
-        return;
+
+        // =================================================
+        // Save User Information
+        // =================================================
+
+        const userData =
+            JSON.stringify(user);
+
+
+        sessionStorage.setItem(
+            "securePassUser",
+            userData
+        );
+
+        sessionStorage.setItem(
+            "user",
+            userData
+        );
+
+        localStorage.setItem(
+            "securePassUser",
+            userData
+        );
+
+        localStorage.setItem(
+            "user",
+            userData
+        );
+
+
+        // =================================================
+        // Login Flag
+        // =================================================
+
+        sessionStorage.setItem(
+            "securePassLoggedIn",
+            "true"
+        );
+
+        localStorage.setItem(
+            "securePassLoggedIn",
+            "true"
+        );
+
+
+        // =================================================
+        // Debug Information
+        // =================================================
+
+        console.log(
+            "Authentication data saved successfully."
+        );
+
+        console.log(
+            "Token exists:",
+            !!token
+        );
+
+        console.log(
+            "User:",
+            user
+        );
     }
 
 
-    /*
-     * Remember Me OFF
-     * → sessionStorage
-     */
+    // =====================================================
+    // Get User Role
+    // =====================================================
 
-    sessionStorage.setItem(
-        "securePassUser",
-        JSON.stringify(userData)
-    );
+    function getUserRole(user) {
 
-    sessionStorage.setItem(
-        "securePassLoggedIn",
-        "true"
-    );
-
-    sessionStorage.setItem(
-        "securePassToken",
-        token
-    );
-
-}
-
-
-// =========================================================
-// Login User
-// =========================================================
-
-async function loginUser() {
-
-    clearMessages();
-
-
-    if (!validateLoginForm()) {
-        return;
+        return String(
+            user?.role ||
+            user?.user_role ||
+            "user"
+        )
+            .trim()
+            .toLowerCase();
     }
 
 
-    const email =
-        emailInput.value.trim().toLowerCase();
+    // =====================================================
+    // Login Handler
+    // =====================================================
 
-    const password =
-        passwordInput.value;
+    async function handleLogin(event) {
 
+        event.preventDefault();
 
-    setLoading(true);
-
-
-    try {
-
-        const response =
-            await fetch(
-                `${API_BASE_URL}/api/auth/login`,
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body: JSON.stringify({
-                        email,
-                        password
-                    })
-                }
-            );
+        clearError();
+        clearSuccess();
 
 
-        const data =
-            await response.json();
+        const email =
+            emailInput
+                ? emailInput.value.trim()
+                : "";
 
 
-        if (!response.ok || !data.success) {
+        const password =
+            passwordInput
+                ? passwordInput.value
+                : "";
+
+
+        // =================================================
+        // Validation
+        // =================================================
+
+        if (!email) {
 
             showError(
-                data.message ||
-                "Invalid email or password."
+                "Please enter your email address."
             );
 
             return;
-
         }
 
 
-        // =================================================
-        // Save Logged-in User + JWT Token
-        // =================================================
+        if (!password) {
 
-        saveUserSession(
-            data.user,
-            data.token
-        );
+            showError(
+                "Please enter your password."
+            );
 
-
-        showSuccess(
-            "Login successful! Redirecting..."
-        );
+            return;
+        }
 
 
-        // =================================================
-        // Redirect Based on Role
-        // =================================================
+        setLoading(true);
 
-        setTimeout(() => {
 
-            if (data.user.role === "admin") {
+        try {
 
-                window.location.href =
-                    "admin/dashboard.html";
+            // =================================================
+            // Login API Request
+            // =================================================
 
-            } else {
+            const response =
+                await fetch(
+                    API_URL,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            email,
+                            password
+                        })
+                    }
+                );
+
+
+            // =================================================
+            // Read Response
+            // =================================================
+
+            let result;
+
+            try {
+
+                result =
+                    await response.json();
+
+            } catch (jsonError) {
+
+                throw new Error(
+                    "Server returned an invalid response."
+                );
+            }
+
+
+            // =================================================
+            // Check HTTP Response
+            // =================================================
+
+            if (!response.ok) {
+
+                throw new Error(
+                    result.message ||
+                    "Invalid email or password."
+                );
+            }
+
+
+            // =================================================
+            // Check Login Success
+            // =================================================
+
+            if (!result.success) {
+
+                throw new Error(
+                    result.message ||
+                    "Login failed."
+                );
+            }
+
+
+            // =================================================
+            // Get Token
+            // =================================================
+
+            const token =
+                result.token ||
+                result.data?.token ||
+                result.data?.accessToken;
+
+
+            if (!token) {
+
+                throw new Error(
+                    "Authentication token was not received."
+                );
+            }
+
+
+            // =================================================
+            // Get User
+            // =================================================
+
+            const user =
+                result.user ||
+                result.data?.user;
+
+
+            if (!user) {
+
+                throw new Error(
+                    "User information was not received."
+                );
+            }
+
+
+            // =================================================
+            // Save Login Data
+            // =================================================
+
+            saveLoginData(
+                token,
+                user
+            );
+
+
+            // =================================================
+            // Get Role
+            // =================================================
+
+            const role =
+                getUserRole(user);
+
+
+            showSuccess(
+                "Login successful. Redirecting..."
+            );
+
+
+            // =================================================
+            // Admin
+            // =================================================
+
+            if (role === "admin") {
+
+                setTimeout(() => {
+
+                    window.location.href =
+                        "admin/admin-dashboard.html";
+
+                }, 500);
+
+                return;
+            }
+
+
+            // =================================================
+            // Normal User
+            // =================================================
+
+            setTimeout(() => {
 
                 window.location.href =
                     "dashboard.html";
 
-            }
-
-        }, 1000);
+            }, 500);
 
 
-    } catch (error) {
+        } catch (error) {
+
+            console.error(
+                "Login Error:",
+                error
+            );
+
+
+            showError(
+                error.message ||
+                "Unable to login. Please try again."
+            );
+
+        } finally {
+
+            setLoading(false);
+        }
+    }
+
+
+    // =====================================================
+    // Submit Event
+    // =====================================================
+
+    if (loginForm) {
+
+        loginForm.addEventListener(
+            "submit",
+            handleLogin
+        );
+
+    } else {
 
         console.error(
-            "Login Request Error:",
-            error
+            "Element #loginForm was not found."
         );
-
-
-        showError(
-            "Unable to connect to the server. Please make sure the backend server is running."
-        );
-
-    } finally {
-
-        setLoading(false);
-
     }
 
-}
 
-
-// =========================================================
-// Form Submit
-// =========================================================
-
-loginForm.addEventListener(
-    "submit",
-    (event) => {
-
-        event.preventDefault();
-
-        loginUser();
-
-    }
-);
+});

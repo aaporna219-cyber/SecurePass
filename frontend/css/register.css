@@ -1,0 +1,95 @@
+/* =========================================================
+   SecurePass - Register
+   ========================================================= */
+
+.register-page {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 15px;
+}
+
+.register-card {
+    width: 100%;
+    max-width: 500px;
+    border: none;
+    border-radius: 18px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+}
+
+.register-card-body {
+    padding: 40px;
+}
+
+.register-logo {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 32px;
+}
+
+.register-title {
+    text-align: center;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.register-subtitle {
+    text-align: center;
+    color: #6c757d;
+    margin-bottom: 30px;
+}
+
+.register-form .form-control {
+    min-height: 48px;
+    border-radius: 10px;
+}
+
+.register-form .form-label {
+    font-weight: 500;
+}
+
+.register-btn {
+    width: 100%;
+    min-height: 48px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+.password-strength {
+    height: 6px;
+    border-radius: 5px;
+    margin-top: 8px;
+    background: #e9ecef;
+    overflow: hidden;
+}
+
+.password-strength-bar {
+    height: 100%;
+    width: 0;
+    transition: width 0.3s ease;
+}
+
+.register-footer {
+    text-align: center;
+    margin-top: 25px;
+    color: #6c757d;
+}
+
+.register-footer a {
+    text-decoration: none;
+    font-weight: 600;
+}
+
+@media (max-width: 576px) {
+
+    .register-card-body {
+        padding: 25px;
+    }
+
+}

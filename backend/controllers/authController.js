@@ -7,6 +7,10 @@ const {
 
 const jwt = require("jsonwebtoken");
 
+const {
+    createSecurityLog
+} = require("../models/securityLogModel");
+
 
 // =========================================================
 // JWT Token Generator
@@ -22,9 +26,7 @@ function generateToken(user) {
 
     }
 
-
     return jwt.sign(
-
         {
             id: user.id,
             email: user.email,
@@ -37,9 +39,53 @@ function generateToken(user) {
             expiresIn:
                 process.env.JWT_EXPIRES_IN || "1d"
         }
-
     );
+}
 
+
+// =========================================================
+// Security Log Helper
+// =========================================================
+
+function logSecurityEvent(
+    req,
+    userId,
+    action,
+    description
+) {
+
+    createSecurityLog(
+        {
+            user_id: userId || null,
+
+            action: action,
+
+            description: description,
+
+            ip_address:
+                req.ip ||
+                req.headers["x-forwarded-for"] ||
+                req.socket?.remoteAddress ||
+                null,
+
+            user_agent:
+                req.headers["user-agent"] ||
+                null
+        },
+
+        (error) => {
+
+            if (error) {
+
+                console.error(
+                    "Security Log Error:",
+                    error.message
+                );
+
+            }
+
+        }
+    );
 }
 
 
@@ -60,7 +106,7 @@ async function registerUser(req, res) {
 
 
         // ---------------------------------------------
-        // Required Field Validation
+        // Required Fields
         // ---------------------------------------------
 
         if (
@@ -158,7 +204,7 @@ async function registerUser(req, res) {
 
 
         // ---------------------------------------------
-        // Basic Password Length Validation
+        // Password Length
         // ---------------------------------------------
 
         if (
@@ -178,7 +224,7 @@ async function registerUser(req, res) {
 
 
         // ---------------------------------------------
-        // Check Existing User
+        // Existing User Check
         // ---------------------------------------------
 
         const existingUser =
@@ -222,7 +268,19 @@ async function registerUser(req, res) {
 
 
         // ---------------------------------------------
-        // Success Response
+        // Registration Log
+        // ---------------------------------------------
+
+        logSecurityEvent(
+            req,
+            userId,
+            "REGISTER",
+            `New user registered with email: ${cleanEmail}`
+        );
+
+
+        // ---------------------------------------------
+        // Success
         // ---------------------------------------------
 
         return res.status(201).json({
@@ -273,13 +331,20 @@ async function loginUser(req, res) {
 
 
         // ---------------------------------------------
-        // Required Field Validation
+        // Required Fields
         // ---------------------------------------------
 
         if (
             !email ||
             !password
         ) {
+
+            logSecurityEvent(
+                req,
+                null,
+                "LOGIN_FAILED",
+                "Login attempt failed because email or password was missing."
+            );
 
             return res.status(400).json({
 
@@ -312,11 +377,17 @@ async function loginUser(req, res) {
 
 
         // ---------------------------------------------
-        // Generic Error
+        // User Not Found
         // ---------------------------------------------
-        // We do not reveal whether the email exists.
 
         if (!user) {
+
+            logSecurityEvent(
+                req,
+                null,
+                "LOGIN_FAILED",
+                `Failed login attempt for unknown email: ${cleanEmail}`
+            );
 
             return res.status(401).json({
 
@@ -331,12 +402,19 @@ async function loginUser(req, res) {
 
 
         // ---------------------------------------------
-        // Check Account Status
+        // Account Status
         // ---------------------------------------------
 
         if (
             user.status !== "active"
         ) {
+
+            logSecurityEvent(
+                req,
+                user.id,
+                "LOGIN_FAILED",
+                "Login attempt blocked because the account is inactive or blocked."
+            );
 
             return res.status(403).json({
 
@@ -351,7 +429,7 @@ async function loginUser(req, res) {
 
 
         // ---------------------------------------------
-        // Compare Password
+        // Password Check
         // ---------------------------------------------
 
         const passwordMatch =
@@ -362,6 +440,13 @@ async function loginUser(req, res) {
 
 
         if (!passwordMatch) {
+
+            logSecurityEvent(
+                req,
+                user.id,
+                "LOGIN_FAILED",
+                "Login failed because the password was incorrect."
+            );
 
             return res.status(401).json({
 
@@ -385,11 +470,23 @@ async function loginUser(req, res) {
 
 
         // ---------------------------------------------
-        // Generate JWT Token
+        // Generate Token
         // ---------------------------------------------
 
         const token =
             generateToken(user);
+
+
+        // ---------------------------------------------
+        // Successful Login Log
+        // ---------------------------------------------
+
+        logSecurityEvent(
+            req,
+            user.id,
+            "LOGIN",
+            `User logged in successfully: ${cleanEmail}`
+        );
 
 
         // ---------------------------------------------
@@ -442,6 +539,61 @@ async function loginUser(req, res) {
 
 
 // =========================================================
+// Logout User
+// =========================================================
+
+async function logoutUser(req, res) {
+
+    try {
+
+        const userId =
+            req.user?.id || null;
+
+
+        const email =
+            req.user?.email || "unknown user";
+
+
+        logSecurityEvent(
+            req,
+            userId,
+            "LOGOUT",
+            `User logged out: ${email}`
+        );
+
+
+        return res.status(200).json({
+
+            success: true,
+
+            message:
+                "Logout successful"
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Logout Error:",
+            error.message
+        );
+
+
+        return res.status(500).json({
+
+            success: false,
+
+            message:
+                "Internal server error"
+
+        });
+
+    }
+
+}
+
+
+// =========================================================
 // Export Controllers
 // =========================================================
 
@@ -449,6 +601,8 @@ module.exports = {
 
     registerUser,
 
-    loginUser
+    loginUser,
+
+    logoutUser
 
 };
